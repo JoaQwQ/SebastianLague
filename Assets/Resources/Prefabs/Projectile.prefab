@@ -92,3 +92,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcaa89b9204099449b0b7a5bdc380db1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  collosionMask:
+    serializedVersion: 2
+    m_Bits: 256
+  damage: 1
