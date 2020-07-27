@@ -7,7 +7,8 @@ using UnityEngine;
 public class Player : LivingEntity
 {
     public float moveSpeed=5;
-    public Camera camera;
+    public new Camera camera;
+    public Crosshairs crosshairs;
     PlayerController playerController;
     GunController gunController;
 
@@ -16,7 +17,6 @@ public class Player : LivingEntity
         base.Start();
         playerController = GetComponent<PlayerController>();
         gunController = GetComponent<GunController>();
-        camera = Camera.main;
     }
     void Update()
     {
@@ -27,18 +27,32 @@ public class Player : LivingEntity
 
         //转向
         Ray ray = camera.ScreenPointToRay(Input.mousePosition);
-        Plane plane = new Plane(Vector3.up, Vector3.zero);
+        Plane plane = new Plane(Vector3.up, Vector3.up*gunController.gunHeight);
         float rayDistance;
         if (plane.Raycast(ray,out rayDistance))
         {
             Vector3 point = ray.GetPoint(rayDistance);
             //Debug.DrawLine(ray.origin, point, Color.red);
             playerController.LookAt(point);
+            crosshairs.transform.position = point;
+            crosshairs.DetectTargets(ray);
+            if((new Vector2(point.x,point.z)-new Vector2(transform.position.x, transform.position.z)).sqrMagnitude>0.5f)
+            {
+                gunController.Aim(point);
+            }
         }
         //射击
         if (Input.GetMouseButton(0))
         {
-            gunController.Shoot();
+            gunController.OnTriggerHold();
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            gunController.OnTriggerRelease();
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            gunController.Reload();
         }
     }
 }

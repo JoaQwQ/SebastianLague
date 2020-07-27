@@ -24,11 +24,40 @@ public class GunController : MonoBehaviour
         equipedGun.transform.SetParent(gunHolder);
     }
 
-    public void Shoot() 
+    public void OnTriggerHold() 
     {
         if (equipedGun!=null)
         {
-            equipedGun.Shoot();
+            equipedGun.OnTriggerHold();
+        }
+    }
+
+    public void OnTriggerRelease()
+    {
+        if (equipedGun != null)
+        {
+            equipedGun.OnTriggerRelease();
+        }
+    }
+
+    public float gunHeight
+    {
+        get { return gunHolder.position.y; }
+    }
+
+    public void Aim(Vector3 aimPoint)
+    {
+        if (equipedGun != null)
+        {
+            equipedGun.Aim(aimPoint);
+        }
+    }
+
+    public void Reload()
+    {
+        if (equipedGun != null)
+        {
+            equipedGun.Reload();
         }
     }
 }

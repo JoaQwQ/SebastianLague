@@ -10,6 +10,7 @@ public class Enemy : LivingEntity
 {
     public enum State {Idle,Chasing,Attacking}
     State currentState;
+    public ParticleSystem enemyDeathEffect;
 
     NavMeshAgent pathfinder;
     Transform target;
@@ -30,25 +31,57 @@ public class Enemy : LivingEntity
     float nextAttackTime;
 
     bool hasTarget;
-    protected override void Start()
+
+    private void Awake()
     {
-        base.Start();
         pathfinder = GetComponent<NavMeshAgent>();
-        skinMaterial = GetComponent<Renderer>().material;
-        orginalColor = skinMaterial.color;
-        if (GameObject.FindGameObjectWithTag("Player")!=null)
+
+        if (GameObject.FindGameObjectWithTag("Player") != null)
         {
-            currentState = State.Chasing;
+            hasTarget = true;
 
             target = GameObject.FindGameObjectWithTag("Player").transform;
-            hasTarget = true;
             targetEntity = target.GetComponent<LivingEntity>();
-            targetEntity.OnDeath += OnTargetDeath;
 
             myCollisionRadius = GetComponent<CapsuleCollider>().radius;
             targetCollisionRadius = target.GetComponent<CapsuleCollider>().radius;
+        }
+    }
+    protected override void Start()
+    {
+        base.Start();
+
+        if (hasTarget)
+        {
+            currentState = State.Chasing;
+            targetEntity.OnDeath += OnTargetDeath;
+
             StartCoroutine(UpdataPath());
         }
+    }
+
+    public void SetCharacteristics(float moveSpeed,int hitToKillPlayer,float enemyHeath,Color skinColour)
+    {
+        pathfinder.speed = moveSpeed;
+        if (hasTarget)
+        {
+            //取距离最近的整数
+            damage = Mathf.Ceil(targetEntity.heathStart / hitToKillPlayer);
+        }
+        heathStart = enemyHeath;
+
+        skinMaterial = GetComponent<Renderer>().material;
+        skinMaterial.color = skinColour;
+        orginalColor = skinMaterial.color;
+    }
+
+    public override void TakeHit(float damage, Vector3 hitPoint, Vector3 hitDirection)
+    {
+        if (damage>=heath)
+        {
+            Destroy(Instantiate(enemyDeathEffect.gameObject,hitPoint,Quaternion.FromToRotation(Vector3.forward,hitDirection))as GameObject, enemyDeathEffect.main.startLifetimeMultiplier);
+        }
+        base.TakeHit(damage, hitPoint, hitDirection);
     }
 
     void OnTargetDeath()

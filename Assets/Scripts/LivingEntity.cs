@@ -13,7 +13,7 @@ public class LivingEntity : MonoBehaviour,IDamageable
     {
         heath = heathStart;
     }
-    public void TakeHit(float damage,RaycastHit hit)
+    public virtual void TakeHit(float damage,Vector3 hitPoint,Vector3 hitDirection)
     {
         TakeDamage(damage);
     }
@@ -25,6 +25,8 @@ public class LivingEntity : MonoBehaviour,IDamageable
             Die();
         }
     }
+
+    [ContextMenu("Self Destory")]
     protected void Die()
     {
         dead = true;
